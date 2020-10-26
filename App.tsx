@@ -22,6 +22,7 @@ interface States {}
 export default class App extends React.Component<Props, States> {
   render() {
     return (
+      // stack navigator for login screen and others
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Login">
           <Stack.Screen

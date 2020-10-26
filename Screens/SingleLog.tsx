@@ -7,7 +7,6 @@ import { NavigationParams } from 'react-navigation';
 
 interface Props extends NavigationParams {
   navigation:any
-
 }
 interface States { }
 export default class SingleLog extends React.Component<Props, States> {

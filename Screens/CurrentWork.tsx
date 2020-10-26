@@ -5,10 +5,16 @@ import { StyleSheet, View, ScrollView } from 'react-native';
 // @ts-ignore
 import RNImmediatePhoneCall from 'react-native-immediate-phone-call';
 import { ListItem, Button, Icon} from  'react-native-elements';
+
+
+// All information from the server database is read, write and updated in this file
+
+
 interface Props {
     navigation:any,
 }
 interface States {
+    // Patient information in the server
     patients: {
         phoneNumber:string;
         Status:string;
@@ -41,6 +47,7 @@ const styles = StyleSheet.create({
 export default class CurrentWork extends React.Component<Props,States> {
     constructor(props: Props) {
         super(props);
+        // Get patient information from the server
         this.state = {
             patients: [{'phoneNumber':'7011012043','Status':'pending'},
             {'phoneNumber':'6546776727','Status':'pending'},
@@ -51,6 +58,9 @@ export default class CurrentWork extends React.Component<Props,States> {
             {'phoneNumber':'6546776722','Status':'pending'}],
         };
     }
+
+    // Missing function for updating patient information in the server
+
     renderPatients() {
         return this.state.patients.map(patient =>{
             return <ListItem key={patient.phoneNumber}

@@ -9,6 +9,12 @@
  * @format
  */
 
+
+
+// Calling both screen CallLog and SingleLog
+
+
+
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 

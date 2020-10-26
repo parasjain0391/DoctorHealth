@@ -34,6 +34,7 @@ export default class Login extends React.Component<Props,States> {
                 password: '',
         };
     }
+    // When login is successful
     loginSuccess(UserCredential: any) {
         console.log(UserCredential);
         this.props.navigation.reset({
@@ -41,10 +42,11 @@ export default class Login extends React.Component<Props,States> {
             routes: [{ name: 'Homescreen' }],
           });
     }
+    // Called after login button is pressed
     loginHandler() {
         try {
             auth().signInWithEmailAndPassword(this.state.email.trim(), this.state.password)
-            .then(UserCredential=>this.loginSuccess(UserCredential),(err:any)=>{console.log(err);});
+            .then(UserCredential=>this.loginSuccess(UserCredential),(err:any)=>{Alert.alert(String(err));});
         } catch (e:any) {
             console.log(e);
             Alert.alert('Login Problem!!!');
