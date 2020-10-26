@@ -86,7 +86,7 @@ export default class CallLog extends React.Component<Props, State> {
     this._isMounted && this.getCallLogs();
   }
   componentDidUpdate() {
-    CallLogs.load(100).then((calls: any) => this.setState({calls}));
+    CallLogs.load(100).then((calls: any) => this._isMounted && this.setState({calls}));
   }
   renderCalls() {
     return this.state.calls.map(call => {

@@ -2,6 +2,8 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
+// @ts-ignore
+import RNImmediatePhoneCall from 'react-native-immediate-phone-call';
 import { ListItem, Button, Icon} from  'react-native-elements';
 interface Props {
     navigation:any,
@@ -40,7 +42,7 @@ export default class CurrentWork extends React.Component<Props,States> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            patients: [{'phoneNumber':'6546776728','Status':'pending'},
+            patients: [{'phoneNumber':'7011012043','Status':'pending'},
             {'phoneNumber':'6546776727','Status':'pending'},
             {'phoneNumber':'6546776726','Status':'pending'},
             {'phoneNumber':'6546776725','Status':'pending'},
@@ -49,9 +51,6 @@ export default class CurrentWork extends React.Component<Props,States> {
             {'phoneNumber':'6546776722','Status':'pending'}],
         };
     }
-    // componentDidMount() {
-    //     //Code for fetching the records of patient according to the doctor ID
-    // }
     renderPatients() {
         return this.state.patients.map(patient =>{
             return <ListItem key={patient.phoneNumber}
@@ -78,7 +77,7 @@ export default class CurrentWork extends React.Component<Props,States> {
                             size={22}
                         />}
                         type="clear"
-                        onPress={() => {console.log(patient);}}
+                        onPress={() => {RNImmediatePhoneCall.immediatePhoneCall(patient.phoneNumber);}}
                     />
                     {/* <Button title="Call" onPress={() => {console.log(patient);}}/> */}
                 </ListItem>;

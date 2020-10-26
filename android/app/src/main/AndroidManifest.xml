@@ -2,7 +2,7 @@
   package="com.doctorhealth">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    
+    <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.READ_CALL_LOG"/>
 
     <application
