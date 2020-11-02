@@ -4,6 +4,7 @@
 import React from 'react';
 import { Button, Text, View } from 'react-native';
 import { NavigationParams } from 'react-navigation';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 interface Props extends NavigationParams {}
 interface States {}
 
@@ -16,7 +17,9 @@ export default class Setting extends React.Component<Props,States> {
         navigation.reset({
             index: 0,
             routes: [{ name: 'Login' }],
-          });
+        });
+        await AsyncStorage.removeItem('email');
+        await AsyncStorage.removeItem('password');
     }
     render() {
         return (

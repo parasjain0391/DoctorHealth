@@ -5,6 +5,8 @@ import { StyleSheet, View, Alert } from 'react-native';
 import { Input, Button } from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
 import { NavigationParams } from 'react-navigation';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 interface Props extends NavigationParams{
 }
 interface States {
@@ -33,7 +35,41 @@ export default class Login extends React.Component<Props,States> {
                 email: '',
                 password: '',
         };
+        this.loginCheck();
     }
+    async setEmail(email:any) {
+        await AsyncStorage.setItem('email',email);
+        console.log('Set Email ' + email);
+    }
+    async setPassword(password:any) {
+        await AsyncStorage.setItem('password',password);
+        console.log('Set Password ' + password);
+    }
+    async loginCheck() {
+        const e:any = await AsyncStorage.getItem('email');
+        const p:any = await AsyncStorage.getItem('password');
+        if (e === null) {
+            console.log('No Login Found');
+            return;
+        }
+        else {
+            this.setState({ email:String(e), password : String(p) });
+            this.loginHandler();
+        }
+    }
+    // async componentWillMount() {
+    //     const e:any = await this.getEmail();
+    //     const p = await this.getPassword();
+    //     console.log(e);
+    //     if (e === null) {
+    //         console.log('if block');
+    //         return;
+    //     }
+    //     else {
+    //         this.setState({ email:String(e), password : String(p) });
+    //         this.loginHandler();
+    //     }
+    // }
     // When login is successful
     loginSuccess(UserCredential: any) {
         console.log(UserCredential);
@@ -41,10 +77,13 @@ export default class Login extends React.Component<Props,States> {
             index: 0,
             routes: [{ name: 'Homescreen' }],
           });
+        this.setEmail(this.state.email.trim());
+        this.setPassword(this.state.password);
     }
     // Called after login button is pressed
     loginHandler() {
         try {
+            console.log('Login Button pressed');
             auth().signInWithEmailAndPassword(this.state.email.trim(), this.state.password)
             .then(UserCredential=>this.loginSuccess(UserCredential),(err:any)=>{Alert.alert(String(err));});
         } catch (e:any) {

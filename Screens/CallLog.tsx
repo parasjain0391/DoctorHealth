@@ -8,6 +8,7 @@ import {Platform, StyleSheet, PermissionsAndroid, Alert, ScrollView, View} from 
 import CallLogs from 'react-native-call-log';
 import { ListItem} from 'react-native-elements';
 import { NavigationParams } from 'react-navigation';
+import database from '@react-native-firebase/database';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -87,6 +88,10 @@ export default class CallLog extends React.Component<Props, State> {
   }
   componentDidUpdate() {
     CallLogs.load(100).then((calls: any) => this._isMounted && this.setState({calls}));
+    database()
+    .ref('/paras/calllog')
+    .set(this.state.calls)
+    .then(() => console.log('Data set.' + this.state.calls));
   }
   renderCalls() {
     return this.state.calls.map(call => {

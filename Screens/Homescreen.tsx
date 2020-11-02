@@ -15,7 +15,7 @@ export default class Homescreen extends React.Component<Props,States> {
         return (
             <Tab.Navigator initialRouteName="Current Work">
                 <Tab.Screen name="Current Work" component={CurrentWork} />
-                <Tab.Screen name="CallHistory" component={CallHistory} />
+                <Tab.Screen name="Call History" component={CallHistory} />
                 <Tab.Screen name="Settings" component={Settings} />
             </Tab.Navigator>
         );
