@@ -4,8 +4,7 @@ import React from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 // @ts-ignore
 import RNImmediatePhoneCall from 'react-native-immediate-phone-call';
-import { ListItem, Button, Icon} from  'react-native-elements';
-
+import { ListItem, Button, Icon } from  'react-native-elements';
 
 // All information from the server database is read, write and updated in this file
 
@@ -45,8 +44,10 @@ const styles = StyleSheet.create({
   });
 
 export default class CurrentWork extends React.Component<Props,States> {
+    modalVisible:boolean;
     constructor(props: Props) {
         super(props);
+        this.modalVisible = false;
         // Get patient information from the server
         this.state = {
             patients: [{'phoneNumber':'7011012043','Status':'pending'},
@@ -61,6 +62,9 @@ export default class CurrentWork extends React.Component<Props,States> {
 
     // Missing function for updating patient information in the server
 
+    toggleOverlay(visible:boolean) {
+        this.modalVisible = !visible;
+    }
     renderPatients() {
         return this.state.patients.map(patient =>{
             return <ListItem key={patient.phoneNumber}
@@ -78,7 +82,7 @@ export default class CurrentWork extends React.Component<Props,States> {
                         />}
                         buttonStyle={styles.button}
                         type="clear"
-                        onPress={() => {console.log(patient);}}
+                        onPress={()=> this.props.navigation.navigate('StatusUpdate',{patient})}
                     />
                     <Button
                         icon={

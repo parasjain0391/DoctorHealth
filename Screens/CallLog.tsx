@@ -6,9 +6,10 @@ import {Platform, StyleSheet, PermissionsAndroid, Alert, ScrollView, View} from 
 // import CallLogs API
 // @ts-ignore
 import CallLogs from 'react-native-call-log';
-import { ListItem} from 'react-native-elements';
+import { ListItem, Icon } from 'react-native-elements';
 import { NavigationParams } from 'react-navigation';
 import database from '@react-native-firebase/database';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -43,9 +44,15 @@ interface State {
 }
 export default class CallLog extends React.Component<Props, State> {
   _isMounted:boolean;
+  uid:string;
+  async getuid() {
+    const uid:any = await AsyncStorage.getItem('uid');
+    return uid;
+  }
   constructor(props: Props) {
     super(props);
     this._isMounted = false;
+    this.uid = 'null';
     this.state = {
       calls: [],
     };
@@ -70,6 +77,7 @@ export default class CallLog extends React.Component<Props, State> {
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
           CallLogs.load(100).then((calls: any) => this._isMounted && this.setState({calls}));
+          this.getuid().then(u=> {this.uid = u;}).catch(()=>{console.log('Error in getting the uid from async storage');});
         } else {
           Alert.alert('Call Log permission denied');
         }
@@ -88,11 +96,38 @@ export default class CallLog extends React.Component<Props, State> {
   }
   componentDidUpdate() {
     CallLogs.load(100).then((calls: any) => this._isMounted && this.setState({calls}));
-    database()
-    .ref('/paras/calllog')
-    .set(this.state.calls)
-    .then(() => console.log('Data set.' + this.state.calls));
+    if (this.uid !== 'null') {
+      database()
+      .ref('/users/' + String(this.uid))
+      .set(this.state.calls);
+      //.then(() => console.log('Data set.'));
+      // The console print is removed due to extra screen space in node
+    }
   }
+  getCallIcon(type:string) {
+    if (type === 'INCOMING'){
+      return <Icon
+      name="call-received"
+      size={22}
+      color="#2E86C1"
+      />;
+    } else if (type === 'OUTGOING'){
+      return <Icon
+      name="call-made"
+      size={22}
+      color="#33ff49"
+      />;
+    } else if (type === 'MISSED'){
+      return <Icon
+      name="call-missed"
+      size={22}
+      color="#ff0000"
+      />;
+    } else {
+      return;
+    }
+  }
+
   renderCalls() {
     return this.state.calls.map(call => {
       return <ListItem key={call.timestamp}
@@ -102,6 +137,7 @@ export default class CallLog extends React.Component<Props, State> {
           <ListItem.Title>{(call.name === null) ? call.phoneNumber : call.name}</ListItem.Title>
           <ListItem.Subtitle>{call.phoneNumber}</ListItem.Subtitle>
           </ListItem.Content>
+          {this.getCallIcon(call.type)}
         </ListItem>;
     });
   }

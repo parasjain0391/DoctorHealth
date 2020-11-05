@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import React from 'react';
 import CallHistory from './CallHistory';
-import CurrentWork from './CurrentWork';
+import Work from './Work';
 import Settings from './Settings';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
@@ -13,8 +13,8 @@ interface States {}
 export default class Homescreen extends React.Component<Props,States> {
     render() {
         return (
-            <Tab.Navigator initialRouteName="Current Work">
-                <Tab.Screen name="Current Work" component={CurrentWork} />
+            <Tab.Navigator initialRouteName="Work">
+                <Tab.Screen name="Work" component={Work} />
                 <Tab.Screen name="Call History" component={CallHistory} />
                 <Tab.Screen name="Settings" component={Settings} />
             </Tab.Navigator>

@@ -20,6 +20,7 @@ export default class Setting extends React.Component<Props,States> {
         });
         await AsyncStorage.removeItem('email');
         await AsyncStorage.removeItem('password');
+        await AsyncStorage.removeItem('uid');
     }
     render() {
         return (
