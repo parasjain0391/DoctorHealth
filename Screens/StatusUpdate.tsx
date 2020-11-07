@@ -3,7 +3,7 @@ import React from 'react';
 import {StyleSheet, View } from 'react-native';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
-import { NavigationParams } from 'react-navigation';
+import { NavigationParams, SafeAreaView } from 'react-navigation';
 // @ts-ignore
 import RadioButtonRN from 'radio-buttons-react-native';
 import { Button } from 'react-native-elements';
@@ -79,6 +79,7 @@ export default class StatusUpdate extends React.Component<Props, States> {
             },
       ];
       return (
+        <SafeAreaView>
         <View style={styles.body}>
             <View style={styles.radioButtonArea}>
                 <RadioButtonRN
@@ -107,6 +108,7 @@ export default class StatusUpdate extends React.Component<Props, States> {
             />
             </View>
         </View>
+        </SafeAreaView>
       );
     }
 }
