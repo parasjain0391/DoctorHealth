@@ -1,45 +1,40 @@
 /* eslint-disable prettier/prettier */
 import React from 'react';
-import {StyleSheet, View } from 'react-native';
+import {Alert, StyleSheet, View } from 'react-native';
 
-import {Colors} from 'react-native/Libraries/NewAppScreen';
 import { NavigationParams, SafeAreaView } from 'react-navigation';
 // @ts-ignore
 import RadioButtonRN from 'radio-buttons-react-native';
 import { Button } from 'react-native-elements';
 const styles = StyleSheet.create({
     body: {
-      backgroundColor: Colors.white,
-      justifyContent:'space-around',
-      flex:1,
+      backgroundColor: 'white',
+      justifyContent:'flex-end',
+      fontSize:18,
     },
     buttonarea: {
-        flex:1,
         flexDirection:'row',
-        justifyContent:'space-around',
-        alignContent:'center',
-        alignItems:'center',
+        justifyContent:'space-evenly',
+        marginVertical:4,
+        paddingHorizontal:10,
     },
     radioButtonArea: {
       fontSize: 24,
       fontWeight: '600',
-      color: Colors.black,
       justifyContent:'center',
       alignContent:'center',
     },
     radioText: {
         fontSize:18,
         fontWeight: '600',
-        marginVertical:10,
     },
     radioBox: {
         marginHorizontal:20,
     },
     button: {
-        marginVertical:10,
-        marginHorizontal:20,
-        paddingVertical:10,
-        paddingHorizontal:20,
+        marginHorizontal:10,
+        justifyContent:'center',
+        alignSelf:'stretch',
     },
     buttontitle: {
         fontSize:20,
@@ -54,11 +49,15 @@ export default class StatusUpdate extends React.Component<Props, States> {
     newStatus:string;
     constructor(props:Props) {
         super(props);
-        this.newStatus = 'pending';
+        this.newStatus = 'Pending';
     }
     updateStatus() {
-        console.log('Status is updated as ' + this.newStatus);
-        this.props.navigation.navigate('CurrentWork');
+        if (this.newStatus === 'Pending') {
+            Alert.alert('Please select a new status of the patient');
+        } else {
+            console.log('Status is updated as ' + this.newStatus);
+            this.props.navigation.navigate('CurrentWork');
+        }
         //change data in the database
         //the patient should also be reduced from the stack
     }
@@ -80,13 +79,13 @@ export default class StatusUpdate extends React.Component<Props, States> {
       ];
       return (
         <SafeAreaView>
-        <View style={styles.body}>
-            <View style={styles.radioButtonArea}>
+        <View>
+            <View>
                 <RadioButtonRN
                 data={data}
                 selectedBtn={(value:any) => {this.newStatus = value.label;}}
                 animationTypes={['zoomIn']}
-                duration={50}
+                duration={5}
                 textStyle={styles.radioText}
                 boxStyle={styles.radioText}
                 />
@@ -102,7 +101,7 @@ export default class StatusUpdate extends React.Component<Props, States> {
             <Button
                 onPress={()=>{this.updateStatus();}}
                 title="Save"
-                type="outline"
+                type="solid"
                 buttonStyle={styles.button}
                 titleStyle={styles.buttontitle}
             />

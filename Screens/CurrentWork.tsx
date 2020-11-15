@@ -50,9 +50,10 @@ export default class CurrentWork extends React.Component<Props,States> {
             patients: [],
         };
     }
-    componentDidMount() {
+    async componentDidMount() {
+        const u:any = await AsyncStorage.getItem('uid');
         database()
-        .ref('/admin/assignedwork')
+        .ref('/work/' + u)
         .once('value')
         .then((snapshot) => {
             const patients:any = [];
@@ -60,10 +61,8 @@ export default class CurrentWork extends React.Component<Props,States> {
                 var i = item.val();
                 i.phoneNumber = item.key;
                 patients.push(i);
-                console.log(i);
             });
             this.setState({ patients: patients });
-            console.log(this.state.patients);
           })
         .catch(err => {console.log(err);});
     }

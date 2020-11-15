@@ -70,7 +70,7 @@ export default class Login extends React.Component<Props,States> {
         console.log(UserCredential);
         this.setState({uid:UserCredential.user.uid});
         database()
-        .ref('/user/' + this.state.uid)
+        .ref('/user/' + UserCredential.user.uid)
         .once('value')
         .then(snapshot => {
             const userdata = snapshot.val();
