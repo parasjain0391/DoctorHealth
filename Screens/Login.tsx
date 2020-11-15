@@ -84,7 +84,7 @@ export default class Login extends React.Component<Props,States> {
                 this.setPassword(this.state.password);
                 this.setuid(UserCredential.user.uid);
             } else {
-                Alert.alert('User is not an admin');
+                Alert.alert('User should not be an admin');
             }
         }).catch(err => {Alert.alert(err);});
     }
