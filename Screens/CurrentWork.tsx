@@ -5,7 +5,8 @@ import { StyleSheet, View, ScrollView } from 'react-native';
 // @ts-ignore
 import RNImmediatePhoneCall from 'react-native-immediate-phone-call';
 import { ListItem, Button, Icon } from  'react-native-elements';
-
+import database from '@react-native-firebase/database';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // All information from the server database is read, write and updated in this file
 
 
@@ -14,10 +15,7 @@ interface Props {
 }
 interface States {
     // Patient information in the server
-    patients: {
-        phoneNumber:string;
-        Status:string;
-    } [],
+    patients:any [],
 }
 const styles = StyleSheet.create({
     container: {
@@ -48,20 +46,28 @@ export default class CurrentWork extends React.Component<Props,States> {
     constructor(props: Props) {
         super(props);
         this.modalVisible = false;
-        // Get patient information from the server
         this.state = {
-            patients: [{'phoneNumber':'7011012043','Status':'pending'},
-            {'phoneNumber':'6546776727','Status':'pending'},
-            {'phoneNumber':'6546776726','Status':'pending'},
-            {'phoneNumber':'6546776725','Status':'pending'},
-            {'phoneNumber':'6546776724','Status':'pending'},
-            {'phoneNumber':'6546776723','Status':'pending'},
-            {'phoneNumber':'6546776722','Status':'pending'}],
+            patients: [],
         };
     }
-
+    componentDidMount() {
+        database()
+        .ref('/admin/assignedwork')
+        .once('value')
+        .then((snapshot) => {
+            const patients:any = [];
+            snapshot.forEach((item:any)=>{
+                var i = item.val();
+                i.phoneNumber = item.key;
+                patients.push(i);
+                console.log(i);
+            });
+            this.setState({ patients: patients });
+            console.log(this.state.patients);
+          })
+        .catch(err => {console.log(err);});
+    }
     // Missing function for updating patient information in the server
-
     toggleOverlay(visible:boolean) {
         this.modalVisible = !visible;
     }

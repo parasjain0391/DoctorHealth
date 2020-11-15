@@ -63,7 +63,7 @@ export default class StatusUpdate extends React.Component<Props, States> {
         //the patient should also be reduced from the stack
     }
     render() {
-      const {patient} = this.props.route.params;
+      const { patient } = this.props.route.params;
       const data = [
             {
                 label:'Order Confirmed',
