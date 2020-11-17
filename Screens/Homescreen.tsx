@@ -5,6 +5,8 @@ import Work from './Work';
 import Settings from './Settings';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
+//Navigates to thsi screen after login successful
+//It is a tab navigator with the work as the default screen
 const Tab = createMaterialTopTabNavigator();
 interface Props {
     navigation:any,

@@ -42,6 +42,7 @@ const styles = StyleSheet.create({
   });
 
 export default class CurrentWork extends React.Component<Props,States> {
+    uid:any
     modalVisible:boolean;
     constructor(props: Props) {
         super(props);
@@ -51,16 +52,38 @@ export default class CurrentWork extends React.Component<Props,States> {
         };
     }
     async componentDidMount() {
-        const u:any = await AsyncStorage.getItem('uid');
+        this.uid = await AsyncStorage.getItem('uid');
         database()
-        .ref('/work/' + u)
+        .ref('/work/' + this.uid)
         .once('value')
         .then((snapshot) => {
             const patients:any = [];
             snapshot.forEach((item:any)=>{
                 var i = item.val();
-                i.phoneNumber = item.key;
-                patients.push(i);
+                //only load the work whose status has not been updated
+                if ( i.status === 'Pending') {
+                    i.phoneNumber = item.key;
+                    patients.push(i);
+                }
+            });
+            this.setState({ patients: patients });
+          })
+        .catch(err => {console.log(err);});
+    }
+
+    // get the work detal if changes are made in the database
+    componentDidUpdate() {
+        database()
+        .ref('/work/' + this.uid)
+        .once('value')
+        .then((snapshot) => {
+            const patients:any = [];
+            snapshot.forEach((item:any)=>{
+                var i = item.val();
+                if ( i.status === 'Pending') {
+                    i.phoneNumber = item.key;
+                    patients.push(i);
+                }
             });
             this.setState({ patients: patients });
           })
@@ -70,6 +93,7 @@ export default class CurrentWork extends React.Component<Props,States> {
     toggleOverlay(visible:boolean) {
         this.modalVisible = !visible;
     }
+    //UI element of the patient
     renderPatients() {
         return this.state.patients.map(patient =>{
             return <ListItem key={patient.phoneNumber}
@@ -87,6 +111,7 @@ export default class CurrentWork extends React.Component<Props,States> {
                         />}
                         buttonStyle={styles.button}
                         type="clear"
+                        // Go to StatusUpdate page
                         onPress={()=> this.props.navigation.navigate('StatusUpdate',{patient})}
                     />
                     <Button
@@ -96,9 +121,9 @@ export default class CurrentWork extends React.Component<Props,States> {
                             size={22}
                         />}
                         type="clear"
+                        // Make direct call to the number
                         onPress={() => {RNImmediatePhoneCall.immediatePhoneCall(patient.phoneNumber);}}
                     />
-                    {/* <Button title="Call" onPress={() => {console.log(patient);}}/> */}
                 </ListItem>;
         });
     }

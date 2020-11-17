@@ -1,27 +1,15 @@
 /* eslint-disable prettier/prettier */
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
- */
-
-
-
-// Calling both screen CallLog and SingleLog
-
-
-
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
-
-//import {View} from 'react-native';
 import CurrentWork from './CurrentWork';
 import StatusUpdate from './StatusUpdate';
 import { NavigationParams } from 'react-navigation';
+
+// Calling both screen CallLog and SingleLog
+// it is a component of the HomeScreen
+// Default screen is the CurrentWork Screen
+
+
 const Stack = createStackNavigator();
 interface Props extends NavigationParams {}
 interface States {}

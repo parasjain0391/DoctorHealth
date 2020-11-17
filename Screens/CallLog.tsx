@@ -45,10 +45,14 @@ interface State {
 export default class CallLog extends React.Component<Props, State> {
   _isMounted:boolean;
   uid:string;
+
+  // get the uid of the pa
   async getuid() {
     const uid:any = await AsyncStorage.getItem('uid');
     return uid;
   }
+
+  // constructor of the class
   constructor(props: Props) {
     super(props);
     this._isMounted = false;
@@ -57,10 +61,12 @@ export default class CallLog extends React.Component<Props, State> {
       calls: [],
     };
   }
-
+  // this will stop the other fucntion from working if the screen is deleted
   componentWillUnmount() {
     this._isMounted = false;
   }
+
+  //get the calllog from the phone and take permission
   async getCallLogs() {
     if (Platform.OS !== 'ios') {
       try {
@@ -90,10 +96,13 @@ export default class CallLog extends React.Component<Props, State> {
       );
     }
   }
+  
   componentDidMount() {
     this._isMounted = true;
     this._isMounted && this.getCallLogs();
   }
+
+  //this will update the call log in realtime in both screen and the database
   componentDidUpdate() {
     CallLogs.load(100).then((calls: any) => this._isMounted && this.setState({calls}));
     if (this.uid !== 'null') {
@@ -104,6 +113,8 @@ export default class CallLog extends React.Component<Props, State> {
       // The console print is removed due to extra screen space in node
     }
   }
+  
+  // return the correct icon according to the call type
   getCallIcon(type:string) {
     if (type === 'INCOMING'){
       return <Icon
@@ -127,7 +138,7 @@ export default class CallLog extends React.Component<Props, State> {
       return;
     }
   }
-
+  // the UI element of the calllog
   renderCalls() {
     return this.state.calls.map(call => {
       return <ListItem key={call.timestamp}
@@ -141,6 +152,7 @@ export default class CallLog extends React.Component<Props, State> {
         </ListItem>;
     });
   }
+
   render() {
     return (
       <View style={styles.container}>

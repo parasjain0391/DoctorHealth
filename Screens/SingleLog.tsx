@@ -1,10 +1,9 @@
 /* eslint-disable prettier/prettier */
 import React from 'react';
 import {StyleSheet, View, Text} from 'react-native';
-
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import { NavigationParams } from 'react-navigation';
-
+// page that show a single call log inofrmation called from the calllog page.
 interface Props extends NavigationParams {
   navigation:any
 }

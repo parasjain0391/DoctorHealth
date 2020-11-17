@@ -1,11 +1,11 @@
 /* eslint-disable prettier/prettier */
 import React from 'react';
 import {Alert, StyleSheet, View } from 'react-native';
-
 import { NavigationParams, SafeAreaView } from 'react-navigation';
 // @ts-ignore
 import RadioButtonRN from 'radio-buttons-react-native';
 import { Button } from 'react-native-elements';
+import database from '@react-native-firebase/database';
 const styles = StyleSheet.create({
     body: {
       backgroundColor: 'white',
@@ -51,15 +51,21 @@ export default class StatusUpdate extends React.Component<Props, States> {
         super(props);
         this.newStatus = 'Pending';
     }
-    updateStatus() {
+    // updates the status of the patient in the database
+    updateStatus(patient:any) {
         if (this.newStatus === 'Pending') {
             Alert.alert('Please select a new status of the patient');
         } else {
+            patient.status = this.newStatus;
+            console.log(patient);
+            database()
+            .ref('/work/' + patient.uid)
+            .child(patient.phoneNumber)
+            .set(patient);
             console.log('Status is updated as ' + this.newStatus);
             this.props.navigation.navigate('CurrentWork');
         }
         //change data in the database
-        //the patient should also be reduced from the stack
     }
     render() {
       const { patient } = this.props.route.params;
@@ -99,7 +105,7 @@ export default class StatusUpdate extends React.Component<Props, States> {
                 titleStyle={styles.buttontitle}
             />
             <Button
-                onPress={()=>{this.updateStatus();}}
+                onPress={()=>{this.updateStatus(patient);}}
                 title="Save"
                 type="solid"
                 buttonStyle={styles.button}
