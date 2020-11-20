@@ -68,7 +68,7 @@ export default class CurrentWork extends React.Component<Props,States> {
             });
             this.setState({ patients: patients });
           })
-        .catch(err => {console.log(err);});
+        .catch(err => {console.log(String(err));});
     }
 
     // get the work detal if changes are made in the database
@@ -87,7 +87,7 @@ export default class CurrentWork extends React.Component<Props,States> {
             });
             this.setState({ patients: patients });
           })
-        .catch(err => {console.log(err);});
+        .catch(err => {console.log(String(err));});
     }
     // Missing function for updating patient information in the server
     toggleOverlay(visible:boolean) {
