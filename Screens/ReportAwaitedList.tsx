@@ -40,49 +40,54 @@ const styles = StyleSheet.create({
       color: '#33ff49',
     },
   });
-
-export default class CurrentWork extends React.Component<Props,States> {
+export default class ReportAwaitedList extends React.Component<Props,States> {
     uid:any
+    date:any
     _isMounted:boolean
     constructor(props: Props) {
         super(props);
         this.state = {
             patients: [],
         };
+        this.date = new Date();
         this._isMounted = false;
     }
-    async componentDidMount() {
+    componentDidMount() {
         this._isMounted = true;
-        this.uid = await AsyncStorage.getItem('uid');
-        this._isMounted && this.loadWork();
+        this._isMounted && this.getuid();
+        this._isMounted && this.loadPatient();
     }
     // get the work detail if changes are made in the database
     componentDidUpdate() {
-        this._isMounted && this.loadWork();
+        this._isMounted && this.loadPatient();
     }
     componentWillUnmount(){
         this._isMounted = false;
     }
-    loadWork(){
+    async getuid(){
+        this.uid = await AsyncStorage.getItem('uid');
+    }
+    loadPatient(){
+        const patients:any = [];
         database()
-        .ref('/work/Pending/' + String(this.uid))
+        .ref('/work/Report Awaited/' + String(this.uid))
         .once('value')
         .then((snapshot) => {
-            const patients:any = [];
-            snapshot.forEach((item:any)=>{
-                var i = item.val();
-                i.phoneNumber = item.key;
-                patients.push(i);
-            });
-            this.setState({ patients: patients });
-          })
+            if (snapshot.exists()){
+                snapshot.forEach((patient:any)=>{
+                    var i = patient.val();
+                    //load the Report Awaited Cases of the Doctor
+                    patients.push(i);
+                });
+                this.setState({ patients: patients });
+            }
+        })
         .catch(err => {console.log(String(err));});
     }
     //UI element of the patient
     renderPatients() {
         return this.state.patients.map(patient =>{
             return <ListItem key={patient.phoneNumber}
-                    onPress={() => {console.log(patient);}}
                     bottomDivider>
                     <ListItem.Content>
                         <ListItem.Title>{patient.phoneNumber}</ListItem.Title>
@@ -97,7 +102,7 @@ export default class CurrentWork extends React.Component<Props,States> {
                         buttonStyle={styles.button}
                         type="clear"
                         // Go to StatusUpdate page
-                        onPress={()=> this.props.navigation.navigate('StatusUpdate',{previousPage:'Current Work',patient})}
+                        onPress={()=> this.props.navigation.navigate('StatusUpdate', {patient})}
                     />
                     <Button
                         icon={

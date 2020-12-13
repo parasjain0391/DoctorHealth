@@ -7,6 +7,7 @@ import RNImmediatePhoneCall from 'react-native-immediate-phone-call';
 import { ListItem, Button, Icon } from  'react-native-elements';
 import database from '@react-native-firebase/database';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import moment from 'moment';
 // All information from the server database is read, write and updated in this file
 
 
@@ -40,8 +41,7 @@ const styles = StyleSheet.create({
       color: '#33ff49',
     },
   });
-
-export default class CurrentWork extends React.Component<Props,States> {
+export default class ReportAwaitedList extends React.Component<Props,States> {
     uid:any
     _isMounted:boolean
     constructor(props: Props) {
@@ -49,40 +49,44 @@ export default class CurrentWork extends React.Component<Props,States> {
         this.state = {
             patients: [],
         };
+        this.uid = '';
         this._isMounted = false;
     }
-    async componentDidMount() {
+    componentDidMount() {
         this._isMounted = true;
-        this.uid = await AsyncStorage.getItem('uid');
-        this._isMounted && this.loadWork();
+        this._isMounted && this.getuid();
+        this._isMounted && this.loadPatients();
     }
     // get the work detail if changes are made in the database
     componentDidUpdate() {
-        this._isMounted && this.loadWork();
+        this._isMounted && this.loadPatients();
     }
-    componentWillUnmount(){
-        this._isMounted = false;
+    async getuid(){
+        this.uid = await AsyncStorage.getItem('uid');
     }
-    loadWork(){
+    loadPatients(){
         database()
-        .ref('/work/Pending/' + String(this.uid))
+        .ref('/work/Interested/' + String(this.uid))
         .once('value')
         .then((snapshot) => {
             const patients:any = [];
-            snapshot.forEach((item:any)=>{
-                var i = item.val();
-                i.phoneNumber = item.key;
-                patients.push(i);
-            });
+            if (snapshot.exists()){
+                snapshot.forEach((patient:any)=>{
+                    var i = patient.val();
+                    if (i.statusUpdateDate < moment().subtract(6,'days').format('YYYY-MM-DD')){
+                        //load the Report Awaited Cases of the Doctor
+                        patients.push(i);
+                    }
+                });
+            }
             this.setState({ patients: patients });
-          })
+        })
         .catch(err => {console.log(String(err));});
     }
     //UI element of the patient
     renderPatients() {
         return this.state.patients.map(patient =>{
             return <ListItem key={patient.phoneNumber}
-                    onPress={() => {console.log(patient);}}
                     bottomDivider>
                     <ListItem.Content>
                         <ListItem.Title>{patient.phoneNumber}</ListItem.Title>
@@ -97,7 +101,7 @@ export default class CurrentWork extends React.Component<Props,States> {
                         buttonStyle={styles.button}
                         type="clear"
                         // Go to StatusUpdate page
-                        onPress={()=> this.props.navigation.navigate('StatusUpdate',{previousPage:'Current Work',patient})}
+                        onPress={()=> this.props.navigation.navigate('StatusUpdate',{patient})}
                     />
                     <Button
                         icon={

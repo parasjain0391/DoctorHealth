@@ -1,11 +1,15 @@
 /* eslint-disable prettier/prettier */
 import React from 'react';
-import {Alert, StyleSheet, View } from 'react-native';
+import {Alert, StyleSheet, View, Platform, PermissionsAndroid } from 'react-native';
 import { NavigationParams, SafeAreaView } from 'react-navigation';
 // @ts-ignore
 import RadioButtonRN from 'radio-buttons-react-native';
 import { Button } from 'react-native-elements';
 import database from '@react-native-firebase/database';
+// @ts-ignore
+import CallLogs from 'react-native-call-log';
+import moment from 'moment';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const styles = StyleSheet.create({
     body: {
       backgroundColor: 'white',
@@ -44,53 +48,158 @@ const styles = StyleSheet.create({
 interface Props extends NavigationParams {
   navigation:any
 }
-interface States { }
+interface States {
+    calls: {
+        dateTime: string;
+        duration: number;
+        name: string;
+        phoneNumber: number;
+        rawType: number;
+        timestamp: string;
+        type: string;
+      }[];
+ }
 export default class StatusUpdate extends React.Component<Props, States> {
     newStatus:string;
-    time:any;
-    turnAround:any;
+    previousStatus:string;
+    timeSpent:number;
+    callCount:number;
+    _isMounted:boolean;
     constructor(props:Props) {
         super(props);
-        this.time = {'date':'','year':'','month':'','hours':'','min':'','sec':'','timestamp':''};
+        this.state = {
+            calls: [],
+          };
         this.newStatus = 'Pending';
-        this.turnAround = {'hours':'00','min':'00','sec':'00'};
+        this.previousStatus = '';
+        this.callCount = 0;
+        this.timeSpent = 0;
+        this._isMounted = false;
+    }
+    componentDidMount(){
+        this._isMounted = true;
+        this._isMounted && this.getCallLogs();
+    }
+    componentDidUpdate(){
+        this._isMounted && this.getCallLogs();
+    }
+    componentWillUnmount(){
+        this._isMounted = false;
+    }
+    // Update the performance varaiable of the doctor
+    updatePerformance(rec:any){
+        const datePerformanceRef = database()
+        .ref('/doctorPerformance/' + String(rec.doctoruid) + '/' + String(rec.statusUpdateDate));
+        datePerformanceRef
+        .once('value')
+        .then((snapshot)=>{
+            console.log(snapshot.val());
+            let count = snapshot.child(String(this.newStatus)).val() + 1;
+            let timeSpent = snapshot.child('Time Spent').val() + rec.timeSpent;
+            let callcount = snapshot.child('Calls Made').val() + rec.callsMade;
+            datePerformanceRef
+            .child(String(this.newStatus))
+            .set(count)
+            .then(()=>{
+                datePerformanceRef
+                .update({
+                    'Time Spent': timeSpent,
+                    'Calls Made': callcount,
+                })
+                .catch((err)=>{console.log(String(err));});
+                if (String(this.previousStatus) === 'Pending'){
+                    database()
+                    .ref('/doctorPerformance/' + String(rec.doctoruid))
+                    .child('Pending')
+                    .once('value')
+                    .then((snap)=>{
+                        let pc = snap.val() - 1;
+                        database()
+                        .ref('/doctorPerformance/' + String(rec.doctoruid))
+                        .child('Pending')
+                        .set(pc);
+                    })
+                    .catch((err)=>{console.log(String(err));});
+                }
+            })
+            .catch((err)=>{console.log(String(err));});
+        })
+        .catch((err)=>{console.log(String(err));});
     }
     // updates the status of the patient in the database
-    updateStatus(patient:any) {
-        if (this.newStatus === 'Pending') {
-            Alert.alert('Please select a new status of the patient');
+    async updateStatus(patient:any) {
+        if (this.newStatus === 'Pending'){
+            Alert.alert('Please select an appropriate status of the patient');
         } else {
-            this.time.date = new Date().getDate(); //Current Date
-            this.time.month = new Date().getMonth() + 1; //Current Month
-            this.time.year = new Date().getFullYear(); //Current Year
-            this.time.hours = new Date().getHours(); //Current Hours
-            this.time.min = new Date().getMinutes(); //Current Minutes
-            this.time.sec = new Date().getSeconds(); //Current Seconds
-            this.time.timestamp = new Date().getTime();
-            patient.status = this.newStatus;
-            patient.statusUpdateTime = this.time;
-            //calculate turn around time
-            var difference:number = patient.statusUpdateTime.timestamp - patient.assignedTime.timestamp;
-            console.log(difference);
-            difference = Math.floor(difference / 1000);
-            console.log(difference);
-            this.turnAround.sec = difference % 60;
-            difference = Math.floor(difference / 60);
-            console.log(difference);
-            this.turnAround.min = difference % 60;
-            difference = Math.floor(difference / 60);
-            console.log(difference);
-            this.turnAround.hours = difference / 24;
-            patient.turnAroundTime = this.turnAround;
-            console.log(patient);
+            //Previosu Status is stored for decrement in count
+            this.previousStatus = String(patient.status);
+            // code to calculate the time spend on that patient on call
+            this.state.calls.forEach((call)=>{
+                call.phoneNumber = call.phoneNumber % 10000000000;
+                if (String(call.phoneNumber) === String(patient.phoneNumber)){
+                    this.timeSpent += call.duration;
+                    this.callCount++;
+                }
+            });
+            var uid = await AsyncStorage.getItem('uid');
+            var rec:any = {
+                phoneNumber: patient.phoneNumber,
+                doctoruid: uid,
+                statusUpdateDate: String(moment().format('YYYY-MM-DD')),
+                timeSpent:this.timeSpent,
+                callsMade:this.callCount,
+                status:this.newStatus,
+                assignedTo:patient.assignedTo,
+                timeStamp:moment().unix(),
+            };
+            //Code to delete the work
             database()
-            .ref('/work/' + patient.uid)
+            .ref('/work/' + String(this.previousStatus) + '/' + String(patient.doctoruid) )
             .child(patient.phoneNumber)
-            .set(patient);
+            .set(null)
+            .then(()=>{this.updatePerformance(rec);});  //update the performance
+            // code to record the data of the patient
+            database()
+            .ref('/records/' + String(rec.doctoruid) + '/' + String(rec.statusUpdateDate) + '/' + String(rec.status))
+            .child(rec.phoneNumber)
+            .set(rec);
+            // code to update the data for special profile
+            database()
+            .ref('/work/' + String(rec.status) + '/' + String(rec.doctoruid))
+            .child(rec.phoneNumber)
+            .set(rec);
             console.log('Status is updated as ' + this.newStatus);
-            this.props.navigation.navigate('CurrentWork');
+            this.props.navigation.goBack();
+            //this.props.navigation.navigate('CurrentWork');
         }
         //change data in the database
+    }
+    //get the calllog from the phone and take permission
+    async getCallLogs() {
+        if (Platform.OS !== 'ios') {
+            try {
+                //Ask for runtime permission
+                const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.READ_CALL_LOG,
+                {
+                    title: 'Call Log Example',
+                    message: 'Access your call logs',
+                    buttonNeutral: 'Ask Me Later',
+                    buttonNegative: 'Cancel',
+                    buttonPositive: 'OK',
+                },
+                );
+                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                CallLogs.load(50).then((calls: any) => this._isMounted && this.setState({calls}));
+                } else {
+                Alert.alert('Call Log permission denied');
+                }
+            } catch (e) {
+                Alert.alert(e);
+            }
+        } else {
+                Alert.alert('Sorry! You can’t get call logs in iOS devices because of the security concern',);
+        }
     }
     render() {
       const { patient } = this.props.route.params;
@@ -105,8 +214,18 @@ export default class StatusUpdate extends React.Component<Props, States> {
                 label:'Interested',
             },
             {
+                label:'Report Awaited',
+            },
+            {
+                label:'Price Issue',
+            },
+            {
                 label:'Not Interested',
             },
+            {
+                label:'Not Answered 2',
+            },
+
       ];
       return (
         <SafeAreaView>
@@ -130,7 +249,7 @@ export default class StatusUpdate extends React.Component<Props, States> {
                 titleStyle={styles.buttontitle}
             />
             <Button
-                onPress={()=>{this.updateStatus(patient);}}
+                onPress={()=>{this._isMounted && this.updateStatus(patient);}}
                 title="Save"
                 type="solid"
                 buttonStyle={styles.button}

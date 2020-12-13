@@ -50,14 +50,19 @@ export default class Login extends React.Component<Props,States> {
     // Store the password for the persist login
     async setPassword(password:any) {
         await AsyncStorage.setItem('password',password);
-        console.log('Set Password ' + password);
+        console.log('Password Set');
     }
     // Store the uid for further usage in the app by the other screens
     async setuid(uid:any) {
         await AsyncStorage.setItem('uid',uid);
         console.log('Set uid ' + uid);
     }
-    // thsi check whether the user is already logged in
+    //Store the role for further usage in the app by the other screens
+    async setrole(role:any) {
+        await AsyncStorage.setItem('role',role);
+        console.log('Set role ' + role);
+    }
+    // this check whether the user is already logged in
     async loginCheck() {
         const e:any = await AsyncStorage.getItem('email');
         const p:any = await AsyncStorage.getItem('password');
@@ -81,7 +86,7 @@ export default class Login extends React.Component<Props,States> {
         .then(snapshot => {
             const userdata = snapshot.val();
             console.log('User data: ', userdata);
-            if (userdata.role === 0) {
+            if (userdata.role === 'Doctor' || userdata.role === 'NA Handler' || userdata.role === 'Price Negotiator') {
                 this.props.navigation.reset({
                     index: 0,
                     routes: [{ name: 'Homescreen' }],
@@ -89,6 +94,7 @@ export default class Login extends React.Component<Props,States> {
                 this.setEmail(this.state.email.trim());
                 this.setPassword(this.state.password);
                 this.setuid(UserCredential.user.uid);
+                this.setrole(userdata.role);
             } else {
                 Alert.alert('User should not be an admin');
             }

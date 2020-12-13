@@ -8,7 +8,6 @@ import {Platform, StyleSheet, PermissionsAndroid, Alert, ScrollView, View} from 
 import CallLogs from 'react-native-call-log';
 import { ListItem, Icon } from 'react-native-elements';
 import { NavigationParams } from 'react-navigation';
-import database from '@react-native-firebase/database';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const styles = StyleSheet.create({
   container: {
@@ -96,7 +95,6 @@ export default class CallLog extends React.Component<Props, State> {
       );
     }
   }
-  
   componentDidMount() {
     this._isMounted = true;
     this._isMounted && this.getCallLogs();
@@ -105,15 +103,15 @@ export default class CallLog extends React.Component<Props, State> {
   //this will update the call log in realtime in both screen and the database
   componentDidUpdate() {
     CallLogs.load(100).then((calls: any) => this._isMounted && this.setState({calls}));
-    if (this.uid !== 'null') {
-      database()
-      .ref('/users/' + String(this.uid))
-      .set(this.state.calls);
-      //.then(() => console.log('Data set.'));
-      // The console print is removed due to extra screen space in node
-    }
+    //No need for below code due to no need for call log
+    // if (this.uid !== 'null') {
+    //   database()
+    //   .ref('/users/' + String(this.uid))
+    //   .set(this.state.calls);
+    //  //.then(() => console.log('Data set.'));
+    //  //The console print is removed due to extra screen space in node
+    //}
   }
-  
   // return the correct icon according to the call type
   getCallIcon(type:string) {
     if (type === 'INCOMING'){
@@ -141,12 +139,13 @@ export default class CallLog extends React.Component<Props, State> {
   // the UI element of the calllog
   renderCalls() {
     return this.state.calls.map(call => {
+      call.phoneNumber = call.phoneNumber % 10000000000;
       return <ListItem key={call.timestamp}
           onPress={()=> this.props.navigation.navigate('SingleLog',{call:call})}
           bottomDivider>
           <ListItem.Content>
           <ListItem.Title>{(call.name === null) ? call.phoneNumber : call.name}</ListItem.Title>
-          <ListItem.Subtitle>{call.phoneNumber}</ListItem.Subtitle>
+          <ListItem.Subtitle>{call.dateTime}</ListItem.Subtitle>
           </ListItem.Content>
           {this.getCallIcon(call.type)}
         </ListItem>;
