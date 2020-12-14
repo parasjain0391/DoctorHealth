@@ -20,16 +20,18 @@ export default class Setting extends React.Component<Props,States> {
             navigation.navigate('NA List');
         }
     }
-    viewInterested(navigation: any) {
-        navigation.navigate('Interested List');
+    async viewInterested(navigation: any) {
+        const uid:any = await AsyncStorage.getItem('uid');
+        navigation.navigate('Interested List',{uid:uid});
     }
-    viewReportAwaited(navigation: any) {
-        navigation.navigate('Report Awaited List');
+    async viewReportAwaited(navigation: any) {
+        const uid:any = await AsyncStorage.getItem('uid');
+        navigation.navigate('Report Awaited List',{uid:uid});
     }
     async viewPriceIssue(navigation: any) {
         const r:any = await AsyncStorage.getItem('role');
         if (r !== 'Price Negotiator'){
-            Alert.alert('Only NA Handler can access NA Patients');
+            Alert.alert('Only Price Negotiator can access Price Issue Patient');
         } else {
             navigation.navigate('Price Issue List');
         }

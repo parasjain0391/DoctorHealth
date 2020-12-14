@@ -2,15 +2,15 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
+import { NavigationParams } from 'react-navigation';
 // @ts-ignore
 import RNImmediatePhoneCall from 'react-native-immediate-phone-call';
 import { ListItem, Button, Icon } from  'react-native-elements';
 import database from '@react-native-firebase/database';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 // All information from the server database is read, write and updated in this file
 
 
-interface Props {
+interface Props extends NavigationParams {
     navigation:any,
 }
 interface States {
@@ -41,53 +41,65 @@ const styles = StyleSheet.create({
     },
   });
 export default class ReportAwaitedList extends React.Component<Props,States> {
-    uid:any
-    date:any
     _isMounted:boolean
+    uid:any
+    ref:any
     constructor(props: Props) {
         super(props);
         this.state = {
             patients: [],
         };
-        this.date = new Date();
+        const {uid} = this.props.route.params;
+        this.uid = uid;
         this._isMounted = false;
+        this.ref = database().ref('/work/Report Awaited/' + String(this.uid));
+
     }
     componentDidMount() {
         this._isMounted = true;
-        this._isMounted && this.getuid();
-        this._isMounted && this.loadPatient();
-    }
-    // get the work detail if changes are made in the database
-    componentDidUpdate() {
-        this._isMounted && this.loadPatient();
-    }
-    componentWillUnmount(){
-        this._isMounted = false;
-    }
-    async getuid(){
-        this.uid = await AsyncStorage.getItem('uid');
-    }
-    loadPatient(){
-        const patients:any = [];
-        database()
-        .ref('/work/Report Awaited/' + String(this.uid))
+        this._isMounted && this.ref
         .once('value')
-        .then((snapshot) => {
-            if (snapshot.exists()){
-                snapshot.forEach((patient:any)=>{
-                    var i = patient.val();
-                    //load the Report Awaited Cases of the Doctor
-                    patients.push(i);
-                });
-                this.setState({ patients: patients });
-            }
-        })
-        .catch(err => {console.log(String(err));});
+        .then((snapshot:any)=>{this.loadList(snapshot);})
+        .catch((err:any)=>{console.log(String(err));});
+        this.ref
+        .on('value',(snapshot:any)=>{this.loadList(snapshot);});
+    }
+    componentWillUnmount() {
+        this._isMounted = false;
+        this.ref.off();
+    }
+    // loadPatients(uid:any){
+    //     database()
+    //     .ref('/work/Report Awaited/' + String(uid))
+    //     .once('value')
+    //     .then((snapshot) => {
+    //         const patients:any = [];
+    //         if (snapshot.exists()){
+    //             snapshot.forEach((patient:any)=>{
+    //                 var i = patient.val();
+    //                 //load the Report Awaited Cases of the Doctor
+    //                 patients.push(i);
+    //             });
+    //         }
+    //         this._isMounted && this.setState({ patients: patients });
+    //     })
+    //     .catch(err => {console.log(String(err));});
+    // }
+    loadList(snapshot:any) {
+        const patients:any = [];
+        if (snapshot.exists()){
+            snapshot.forEach((patient:any)=>{
+                var i = patient.val();
+                //load the Report Awaited Cases of the Doctor
+                patients.push(i);
+            });
+        }
+        this._isMounted && this.setState({ patients: patients });
     }
     //UI element of the patient
     renderPatients() {
         return this.state.patients.map(patient =>{
-            return <ListItem key={patient.phoneNumber}
+            return <ListItem key={String(patient.phoneNumber)}
                     bottomDivider>
                     <ListItem.Content>
                         <ListItem.Title>{patient.phoneNumber}</ListItem.Title>
@@ -102,7 +114,7 @@ export default class ReportAwaitedList extends React.Component<Props,States> {
                         buttonStyle={styles.button}
                         type="clear"
                         // Go to StatusUpdate page
-                        onPress={()=> this.props.navigation.navigate('StatusUpdate', {patient})}
+                        onPress={()=> this.props.navigation.navigate('StatusUpdate',{patient})}
                     />
                     <Button
                         icon={

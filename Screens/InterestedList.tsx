@@ -6,12 +6,12 @@ import { StyleSheet, View, ScrollView } from 'react-native';
 import RNImmediatePhoneCall from 'react-native-immediate-phone-call';
 import { ListItem, Button, Icon } from  'react-native-elements';
 import database from '@react-native-firebase/database';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NavigationParams } from 'react-navigation';
 import moment from 'moment';
 // All information from the server database is read, write and updated in this file
 
 
-interface Props {
+interface Props extends NavigationParams {
     navigation:any,
 }
 interface States {
@@ -41,47 +41,45 @@ const styles = StyleSheet.create({
       color: '#33ff49',
     },
   });
-export default class ReportAwaitedList extends React.Component<Props,States> {
+export default class InterestedList extends React.Component<Props,States> {
     uid:any
     _isMounted:boolean
+    ref:any
     constructor(props: Props) {
         super(props);
         this.state = {
             patients: [],
         };
-        this.uid = '';
+        this.uid = this.props.route.params;
         this._isMounted = false;
+        const {uid} = this.props.route.params;
+        this.ref = database().ref('/work/Interested/' + String(uid));
     }
     componentDidMount() {
         this._isMounted = true;
-        this._isMounted && this.getuid();
-        this._isMounted && this.loadPatients();
+        this._isMounted && this.ref.
+        once('value').
+        then((snapshot:any)=>{this.loadList(snapshot);})
+        .catch((err:any)=>{console.log(String(err));});
+        this.ref
+        .on('value',(snapshot:any)=>{this.loadList(snapshot);});
     }
-    // get the work detail if changes are made in the database
-    componentDidUpdate() {
-        this._isMounted && this.loadPatients();
+    componentWillUnmount() {
+        this._isMounted = false;
+        this.ref.off();
     }
-    async getuid(){
-        this.uid = await AsyncStorage.getItem('uid');
-    }
-    loadPatients(){
-        database()
-        .ref('/work/Interested/' + String(this.uid))
-        .once('value')
-        .then((snapshot) => {
-            const patients:any = [];
-            if (snapshot.exists()){
-                snapshot.forEach((patient:any)=>{
-                    var i = patient.val();
-                    if (i.statusUpdateDate < moment().subtract(6,'days').format('YYYY-MM-DD')){
-                        //load the Report Awaited Cases of the Doctor
-                        patients.push(i);
-                    }
-                });
-            }
-            this.setState({ patients: patients });
-        })
-        .catch(err => {console.log(String(err));});
+    loadList(snapshot:any){
+        const patients:any = [];
+        if (snapshot.exists()){
+            snapshot.forEach((patient:any)=>{
+                var i = patient.val();
+                if (i.statusUpdateDate < moment().subtract(6,'days').format('YYYY-MM-DD')){
+                    //load the Report Awaited Cases of the Doctor
+                    patients.push(i);
+                }
+            });
+        }
+        this._isMounted && this.setState({ patients: patients });
     }
     //UI element of the patient
     renderPatients() {

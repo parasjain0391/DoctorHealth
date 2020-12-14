@@ -15,7 +15,7 @@ interface States {}
 export default class Homescreen extends React.Component<Props,States> {
     render() {
         return (
-            <Tab.Navigator initialRouteName="Work">
+            <Tab.Navigator initialRouteName="Call History">
                 <Tab.Screen name="Work" component={Work} />
                 <Tab.Screen name="Call History" component={CallHistory} />
                 <Tab.Screen name="Settings" component={Settings} />

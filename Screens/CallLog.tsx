@@ -144,7 +144,7 @@ export default class CallLog extends React.Component<Props, State> {
           onPress={()=> this.props.navigation.navigate('SingleLog',{call:call})}
           bottomDivider>
           <ListItem.Content>
-          <ListItem.Title>{(call.name === null) ? call.phoneNumber : call.name}</ListItem.Title>
+          <ListItem.Title>{String(call.phoneNumber)}</ListItem.Title>
           <ListItem.Subtitle>{call.dateTime}</ListItem.Subtitle>
           </ListItem.Content>
           {this.getCallIcon(call.type)}

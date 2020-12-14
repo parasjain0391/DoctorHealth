@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
         flex:1,
     },
 });
+(global as any).uid;
 export default class Login extends React.Component<Props,States> {
     constructor(props: Props) {
         super(props);
@@ -90,6 +91,7 @@ export default class Login extends React.Component<Props,States> {
                 this.props.navigation.reset({
                     index: 0,
                     routes: [{ name: 'Homescreen' }],
+                    params: {uid:UserCredential.user.uid},
                 });
                 this.setEmail(this.state.email.trim());
                 this.setPassword(this.state.password);
@@ -105,7 +107,16 @@ export default class Login extends React.Component<Props,States> {
         try {
             console.log('Login Button pressed');
             auth().signInWithEmailAndPassword(this.state.email.trim(), this.state.password)
-            .then(UserCredential=>this.loginSuccess(UserCredential),(err:any)=>{Alert.alert(String(err));});
+            .then(UserCredential=>this.loginSuccess(UserCredential),(error:any)=>{
+                if (error.code === 'auth/wrong-password') {
+                    console.log('Password is incorrect!!!');
+                    Alert.alert('Password is incorrect!!!');
+                }
+                if (error.code === 'auth/invalid-email') {
+                    console.log('Email is incorrect!!!');
+                    Alert.alert('Email is incorrect!!!');
+                }
+            });
         } catch (e:any) {
             console.log(e);
             Alert.alert('Login Problem!!!');

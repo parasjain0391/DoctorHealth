@@ -7,10 +7,11 @@ import RNImmediatePhoneCall from 'react-native-immediate-phone-call';
 import { ListItem, Button, Icon } from  'react-native-elements';
 import database from '@react-native-firebase/database';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {NavigationParams} from 'react-navigation';
 // All information from the server database is read, write and updated in this file
 
 
-interface Props {
+interface Props extends NavigationParams {
     navigation:any,
 }
 interface States {
@@ -44,39 +45,40 @@ const styles = StyleSheet.create({
 export default class CurrentWork extends React.Component<Props,States> {
     uid:any
     _isMounted:boolean
+    ref:any
     constructor(props: Props) {
         super(props);
         this.state = {
             patients: [],
         };
         this._isMounted = false;
+        this.ref = '';
+        this.uid = 'Empty';
     }
     async componentDidMount() {
-        this._isMounted = true;
         this.uid = await AsyncStorage.getItem('uid');
-        this._isMounted && this.loadWork();
-    }
-    // get the work detail if changes are made in the database
-    componentDidUpdate() {
-        this._isMounted && this.loadWork();
+        this._isMounted = true;
+        this.ref = database().ref('/work/Pending/' + String(this.uid));
+        this._isMounted && this.ref
+        .once('value')
+        .then((snapshot:any)=>{this.loadWork(snapshot);})
+        .catch((err:any)=>{console.log(String(err));});
+        this.ref
+        .on('value',(snapshot:any)=>{this.loadWork(snapshot);});
     }
     componentWillUnmount(){
         this._isMounted = false;
+        this.ref.off();
     }
-    loadWork(){
-        database()
-        .ref('/work/Pending/' + String(this.uid))
-        .once('value')
-        .then((snapshot) => {
-            const patients:any = [];
-            snapshot.forEach((item:any)=>{
-                var i = item.val();
-                i.phoneNumber = item.key;
-                patients.push(i);
-            });
-            this.setState({ patients: patients });
-          })
-        .catch(err => {console.log(String(err));});
+    loadWork(snapshot:any){
+        const patients:any = [];
+        snapshot.forEach((item:any)=>{
+            var i = item.val();
+            i.phoneNumber = item.key;
+            patients.push(i);
+        });
+        console.log(patients);
+        this.setState({ patients: patients });
     }
     //UI element of the patient
     renderPatients() {

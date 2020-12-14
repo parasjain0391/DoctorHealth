@@ -42,39 +42,38 @@ const styles = StyleSheet.create({
 export default class PriceIssueList extends React.Component<Props,States> {
     uid:any
     _isMounted:boolean
+    ref:any
     constructor(props: Props) {
         super(props);
         this.state = {
             patients: [],
         };
         this._isMounted = false;
+        this.ref = database().ref('/work/Price Issue');
     }
     async componentDidMount() {
         this._isMounted = true;
-        this._isMounted && this.loadList();
-    }
-
-    // get the work detail if changes are made in the database
-    componentDidUpdate() {
-        this._isMounted && this.loadList();
-    }
-    loadList(){
-        database()
-        .ref('/work/Price Issue')
+        this._isMounted && this.ref
         .once('value')
-        .then((snapshot) => {
-            const patients:any = [];
-            if (snapshot.exists()){
-                snapshot.forEach((doctor:any)=>{
-                    doctor.forEach((patient:any)=>{
-                        var p = patient.val();
-                        patients.push(p);
-                    });
+        .then((snapshot:any)=>{this.loadList(snapshot);});
+        this.ref
+        .on('value',(snapshot:any)=>{this.loadList(snapshot);});
+    }
+    componentWillUnmount() {
+        this._isMounted = false;
+        this.ref.off();
+    }
+    loadList(snapshot:any){
+        const patients:any = [];
+        if (snapshot.exists()){
+            snapshot.forEach((doctor:any)=>{
+                doctor.forEach((patient:any)=>{
+                    var p = patient.val();
+                    patients.push(p);
                 });
-                this.setState({ patients: patients });
-            }
-        })
-        .catch(err => {console.log(String(err));});
+            });
+            this._isMounted && this.setState({ patients: patients });
+        }
     }
     //UI element of the patient
     renderPatients() {
