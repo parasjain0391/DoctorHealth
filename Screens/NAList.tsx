@@ -1,11 +1,12 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import { StyleSheet, View, ScrollView, Alert } from 'react-native';
 // @ts-ignore
 import RNImmediatePhoneCall from 'react-native-immediate-phone-call';
 import { ListItem, Button, Icon } from  'react-native-elements';
 import database from '@react-native-firebase/database';
+import moment from 'moment';
 // All information from the server database is read, write and updated in this file
 
 
@@ -53,9 +54,6 @@ export default class NAList extends React.Component<Props,States> {
     }
     async componentDidMount() {
         this._isMounted = true;
-        this._isMounted && this.ref.once('value')
-        .then((snapshot:any)=>{this.loadList(snapshot);})
-        .catch((err:any)=>{console.log(String(err));});
         this.ref
         .on('value',(snapshot:any)=>{this.loadList(snapshot);});
     }
@@ -69,9 +67,14 @@ export default class NAList extends React.Component<Props,States> {
             snapshot.forEach((doctor:any)=>{
                 doctor.forEach((patient:any)=>{
                     var p = patient.val();
-                    patients.push(p);
+                    if (p.statusUpdateDate < moment().format('YYYY-MM-DD')){
+                        patients.push(p);
+                    }
                 });
             });
+        } else {
+            Alert.alert('There is NO Not Answered patient');
+            this.props.navigation.goBack();
         }
         this._isMounted && this.setState({ patients: patients });
     }
@@ -82,6 +85,7 @@ export default class NAList extends React.Component<Props,States> {
                     bottomDivider>
                     <ListItem.Content>
                         <ListItem.Title>{patient.phoneNumber}</ListItem.Title>
+                        <ListItem.Subtitle>{patient.statusUpdateDate} {patient.statusUpdateTime}</ListItem.Subtitle>
                     </ListItem.Content>
                     <Button
                         icon={

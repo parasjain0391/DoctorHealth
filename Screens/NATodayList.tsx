@@ -7,11 +7,11 @@ import RNImmediatePhoneCall from 'react-native-immediate-phone-call';
 import { ListItem, Button, Icon } from  'react-native-elements';
 import database from '@react-native-firebase/database';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {NavigationParams} from 'react-navigation';
+import moment from 'moment';
 // All information from the server database is read, write and updated in this file
 
 
-interface Props extends NavigationParams {
+interface Props {
     navigation:any,
 }
 interface States {
@@ -41,8 +41,7 @@ const styles = StyleSheet.create({
       color: '#33ff49',
     },
   });
-
-export default class CurrentWork extends React.Component<Props,States> {
+export default class NATodayList extends React.Component<Props,States> {
     uid:any
     _isMounted:boolean
     ref:any
@@ -53,36 +52,37 @@ export default class CurrentWork extends React.Component<Props,States> {
         };
         this._isMounted = false;
         this.ref = '';
-        this.uid = 'Empty';
     }
     async componentDidMount() {
-        this.uid = await AsyncStorage.getItem('uid');
         this._isMounted = true;
-        this.ref = database().ref('/work/Pending/' + String(this.uid));
+        this.uid = await AsyncStorage.getItem('uid');
+        this.ref = database().ref('/work/Not Answered/' + String(this.uid));
         this.ref
-        .on('value',(snapshot:any)=>{this.loadWork(snapshot);});
+        .on('value',(snapshot:any)=>{this.loadList(snapshot);});
     }
     componentWillUnmount(){
         this._isMounted = false;
         this.ref.off();
     }
-    loadWork(snapshot:any){
-        if (!snapshot.exists()){
-            Alert.alert('You have no pending patients');
-        }
+    loadList(snapshot:any){
         const patients:any = [];
-        snapshot.forEach((item:any)=>{
-            var i = item.val();
-            i.phoneNumber = item.key;
-            patients.push(i);
-        });
-        this.setState({ patients: patients });
+        if ( snapshot.exists()){
+            snapshot.forEach((patient:any)=>{
+                if (patient.child('statusUpdateDate').val() === moment().format('YYYY-MM-DD'))
+                {    var p = patient.val();
+                    patients.push(p);
+                }
+            });
+        } else {
+            Alert.alert('There is NO Not Answered call today');
+            this.props.navigation.goBack();
+        }
+        this._isMounted && this.setState({ patients: patients });
     }
     //UI element of the patient
     renderPatients() {
         return this.state.patients.map(patient =>{
             return <ListItem key={patient.phoneNumber}
-                    onPress={() => {console.log(patient);}}
                     bottomDivider>
                     <ListItem.Content>
                         <ListItem.Title>{patient.phoneNumber}</ListItem.Title>
@@ -98,7 +98,7 @@ export default class CurrentWork extends React.Component<Props,States> {
                         buttonStyle={styles.button}
                         type="clear"
                         // Go to StatusUpdate page
-                        onPress={()=> this.props.navigation.navigate('StatusUpdate',{previousPage:'Current Work',patient})}
+                        onPress={()=> this.props.navigation.navigate('StatusUpdate',{patient})}
                     />
                     <Button
                         icon={

@@ -2,11 +2,6 @@
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import CurrentWork from './CurrentWork';
-import StatusUpdate from './StatusUpdate';
-import NAList from './NAList';
-import PriceIssueList from './PriceIssueList';
-import ReportAwaitedList from './ReportAwaitedList';
-import InterestedList from './InterestedList';
 import { NavigationParams } from 'react-navigation';
 
 // Calling both screen CallLog and SingleLog
@@ -25,31 +20,6 @@ export default class Work extends React.Component<Props, States> {
           name="CurrentWork"
           component={CurrentWork}
           options={{title: 'Current Work'}}
-        />
-        <Stack.Screen
-          name="StatusUpdate"
-          component={StatusUpdate}
-          options={{title: 'Status Update'}}
-        />
-        <Stack.Screen
-          name="NA List"
-          component={NAList}
-          options={{title: 'NA List'}}
-        />
-        <Stack.Screen
-          name="Price Issue List"
-          component={PriceIssueList}
-          options={{title: 'Price Issue List'}}
-        />
-        <Stack.Screen
-          name="Interested List"
-          component={InterestedList}
-          options={{title: 'Interested List'}}
-        />
-        <Stack.Screen
-          name="Report Awaited List"
-          component={ReportAwaitedList}
-          options={{title: 'Report Awaited List'}}
         />
       </Stack.Navigator>
     );

@@ -105,7 +105,8 @@ export default class StatusUpdate extends React.Component<Props, States> {
                                     'Time Spent':0,
                                     'Calls Made':0,
                                     'Finally Confirmed':0,
-                                    'Order Declined':0};
+                                    'Order Declined':0,
+                                    'Assigned Rejected':0};
                 database()
                 .ref('/doctorPerformance/' + String(rec.doctoruid) + '/' + String(moment().format('YYYY-MM-DD')))
                 .set(freshPerformance)
@@ -129,6 +130,19 @@ export default class StatusUpdate extends React.Component<Props, States> {
                     database()
                     .ref('/doctorPerformance/' + String(rec.doctoruid))
                     .child('Pending')
+                    .once('value')
+                    .then((snap)=>{
+                        let pc = snap.val() - 1;
+                        database()
+                        .ref('/doctorPerformance/' + String(rec.doctoruid))
+                        .child('Pending')
+                        .set(pc);
+                    })
+                    .catch((err)=>{console.log(String(err));});
+                } else if ((this.previousStatus) === 'Not Answered' && rec.statusUpdateDate === moment().format('YYYY-MM-DD')){
+                    database()
+                    .ref('/doctorPerformance/' + String(rec.doctoruid) + String(moment().format('YYYY-MM-DD')))
+                    .child('Not Answered')
                     .once('value')
                     .then((snap)=>{
                         let pc = snap.val() - 1;
@@ -163,7 +177,8 @@ export default class StatusUpdate extends React.Component<Props, States> {
             var rec:any = {
                 phoneNumber: patient.phoneNumber,
                 doctoruid: uid,
-                statusUpdateDate: String(moment().format('YYYY-MM-DD')),
+                statusUpdateDate: patient.statusUpdateDate,
+                statusUpdateTime: patient.statusUpdateTime,
                 timeSpent:this.timeSpent,
                 callsMade:this.callCount,
                 status:this.newStatus,
@@ -177,6 +192,8 @@ export default class StatusUpdate extends React.Component<Props, States> {
             .set(null)
             .then(()=>{this.updatePerformance(rec);});  //update the performance
             // code to record the data of the patient
+            rec.statusUpdateDate = moment().format('YYYY-MM-DD');
+            rec.statusUpdateTime = moment().format('LT');
             database()
             .ref('/records/' + String(rec.doctoruid) + '/' + String(rec.statusUpdateDate) + '/' + String(rec.status))
             .child(rec.phoneNumber)
@@ -260,7 +277,7 @@ export default class StatusUpdate extends React.Component<Props, States> {
             </View>
             <View style={styles.buttonarea}>
             <Button
-                onPress={()=>{this.props.navigation.navigate('CurrentWork');}}
+                onPress={()=>{this.props.navigation.goBack();}}
                 title="Cancel"
                 type="outline"
                 buttonStyle={styles.button}

@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import { StyleSheet, View, ScrollView, Alert } from 'react-native';
 // @ts-ignore
 import RNImmediatePhoneCall from 'react-native-immediate-phone-call';
 import { ListItem, Button, Icon } from  'react-native-elements';
@@ -78,6 +78,9 @@ export default class InterestedList extends React.Component<Props,States> {
                     patients.push(i);
                 }
             });
+        } else {
+            Alert.alert('There is NO Interested Patient');
+            this.props.navigation.goBack();
         }
         this._isMounted && this.setState({ patients: patients });
     }
@@ -88,6 +91,7 @@ export default class InterestedList extends React.Component<Props,States> {
                     bottomDivider>
                     <ListItem.Content>
                         <ListItem.Title>{patient.phoneNumber}</ListItem.Title>
+                        <ListItem.Subtitle>{patient.statusUpdateDate} {patient.statusUpdateTime}</ListItem.Subtitle>
                     </ListItem.Content>
                     <Button
                         icon={

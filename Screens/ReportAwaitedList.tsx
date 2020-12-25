@@ -57,10 +57,6 @@ export default class ReportAwaitedList extends React.Component<Props,States> {
     }
     componentDidMount() {
         this._isMounted = true;
-        this._isMounted && this.ref
-        .once('value')
-        .then((snapshot:any)=>{this.loadList(snapshot);})
-        .catch((err:any)=>{console.log(String(err));});
         this.ref
         .on('value',(snapshot:any)=>{this.loadList(snapshot);});
     }
@@ -103,6 +99,7 @@ export default class ReportAwaitedList extends React.Component<Props,States> {
                     bottomDivider>
                     <ListItem.Content>
                         <ListItem.Title>{patient.phoneNumber}</ListItem.Title>
+                        <ListItem.Subtitle>{patient.statusUpdateDate} {patient.statusUpdateTime}</ListItem.Subtitle>
                     </ListItem.Content>
                     <Button
                         icon={

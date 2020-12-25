@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import { StyleSheet, View, ScrollView, Alert } from 'react-native';
 // @ts-ignore
 import RNImmediatePhoneCall from 'react-native-immediate-phone-call';
 import { ListItem, Button, Icon } from  'react-native-elements';
@@ -53,9 +53,6 @@ export default class PriceIssueList extends React.Component<Props,States> {
     }
     async componentDidMount() {
         this._isMounted = true;
-        this._isMounted && this.ref
-        .once('value')
-        .then((snapshot:any)=>{this.loadList(snapshot);});
         this.ref
         .on('value',(snapshot:any)=>{this.loadList(snapshot);});
     }
@@ -73,6 +70,9 @@ export default class PriceIssueList extends React.Component<Props,States> {
                 });
             });
             this._isMounted && this.setState({ patients: patients });
+        } else {
+            Alert.alert('There is NO Price Issue Patient ');
+            this.props.navigation.goBack();
         }
     }
     //UI element of the patient
@@ -82,6 +82,7 @@ export default class PriceIssueList extends React.Component<Props,States> {
                     bottomDivider>
                     <ListItem.Content>
                         <ListItem.Title>{patient.phoneNumber}</ListItem.Title>
+                        <ListItem.Subtitle>{patient.statusUpdateDate} {patient.statusUpdateTime}</ListItem.Subtitle>
                     </ListItem.Content>
                     <Button
                         icon={
