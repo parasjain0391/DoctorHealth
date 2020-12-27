@@ -139,16 +139,16 @@ export default class StatusUpdate extends React.Component<Props, States> {
                         .set(pc);
                     })
                     .catch((err)=>{console.log(String(err));});
-                } else if ((this.previousStatus) === 'Not Answered' && rec.statusUpdateDate === moment().format('YYYY-MM-DD')){
+                } else if ((this.previousStatus) === 'Not Answered' && rec.statusUpdateDate === moment().format('YYYY-MM-DD')) {
                     database()
-                    .ref('/doctorPerformance/' + String(rec.doctoruid) + String(moment().format('YYYY-MM-DD')))
+                    .ref('/doctorPerformance/' + String(rec.doctoruid) + '/' + String(rec.statusUpdateDate))
                     .child('Not Answered')
                     .once('value')
                     .then((snap)=>{
                         let pc = snap.val() - 1;
                         database()
-                        .ref('/doctorPerformance/' + String(rec.doctoruid))
-                        .child('Pending')
+                        .ref('/doctorPerformance/' + String(rec.doctoruid) + '/' + String(rec.statusUpdateDate))
+                        .child('Not Answered')
                         .set(pc);
                     })
                     .catch((err)=>{console.log(String(err));});
