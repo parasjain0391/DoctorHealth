@@ -63,15 +63,21 @@ export default class NAList extends React.Component<Props,States> {
     }
     loadList(snapshot:any){
         const patients:any = [];
-        if ( snapshot.exists()){
+        var flag = true;
+        if (snapshot.exists()){
             snapshot.forEach((doctor:any)=>{
                 doctor.forEach((patient:any)=>{
                     var p = patient.val();
                     if (p.statusUpdateDate < moment().format('YYYY-MM-DD')){
                         patients.push(p);
+                        flag = false;
                     }
                 });
             });
+            if ( flag ) {
+                Alert.alert('There is NO Not Answered patient');
+                this.props.navigation.goBack();
+            }
         } else {
             Alert.alert('There is NO Not Answered patient');
             this.props.navigation.goBack();

@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import { StyleSheet, View, ScrollView, Alert } from 'react-native';
 import { NavigationParams } from 'react-navigation';
 // @ts-ignore
 import RNImmediatePhoneCall from 'react-native-immediate-phone-call';
@@ -64,23 +64,6 @@ export default class ReportAwaitedList extends React.Component<Props,States> {
         this._isMounted = false;
         this.ref.off();
     }
-    // loadPatients(uid:any){
-    //     database()
-    //     .ref('/work/Report Awaited/' + String(uid))
-    //     .once('value')
-    //     .then((snapshot) => {
-    //         const patients:any = [];
-    //         if (snapshot.exists()){
-    //             snapshot.forEach((patient:any)=>{
-    //                 var i = patient.val();
-    //                 //load the Report Awaited Cases of the Doctor
-    //                 patients.push(i);
-    //             });
-    //         }
-    //         this._isMounted && this.setState({ patients: patients });
-    //     })
-    //     .catch(err => {console.log(String(err));});
-    // }
     loadList(snapshot:any) {
         const patients:any = [];
         if (snapshot.exists()){
@@ -89,6 +72,9 @@ export default class ReportAwaitedList extends React.Component<Props,States> {
                 //load the Report Awaited Cases of the Doctor
                 patients.push(i);
             });
+        } else {
+            Alert.alert('There is NO Report Awaited Patient');
+            this.props.navigation.goBack();
         }
         this._isMounted && this.setState({ patients: patients });
     }

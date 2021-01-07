@@ -67,12 +67,19 @@ export default class NATodayList extends React.Component<Props,States> {
     loadList(snapshot:any){
         const patients:any = [];
         if ( snapshot.exists()){
+            var flag = true;
             snapshot.forEach((patient:any)=>{
-                if (patient.child('statusUpdateDate').val() === moment().format('YYYY-MM-DD'))
-                {    var p = patient.val();
-                    patients.push(p);
-                }
+            if (patient.child('statusUpdateDate').val() === moment().format('YYYY-MM-DD'))
+            {
+                var p = patient.val();
+                patients.push(p);
+                flag = false;
+            }
             });
+            if ( flag ) {
+                Alert.alert('There is NO Not Answered call today');
+                this.props.navigation.goBack();
+            }
         } else {
             Alert.alert('There is NO Not Answered call today');
             this.props.navigation.goBack();

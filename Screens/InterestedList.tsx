@@ -57,10 +57,6 @@ export default class InterestedList extends React.Component<Props,States> {
     }
     componentDidMount() {
         this._isMounted = true;
-        this._isMounted && this.ref.
-        once('value').
-        then((snapshot:any)=>{this.loadList(snapshot);})
-        .catch((err:any)=>{console.log(String(err));});
         this.ref
         .on('value',(snapshot:any)=>{this.loadList(snapshot);});
     }
@@ -71,11 +67,17 @@ export default class InterestedList extends React.Component<Props,States> {
     loadList(snapshot:any){
         const patients:any = [];
         if (snapshot.exists()){
+             var flag =  true;
             snapshot.forEach((patient:any)=>{
                 var i = patient.val();
                 if (i.statusUpdateDate < moment().subtract(6,'days').format('YYYY-MM-DD')){
                     //load the Report Awaited Cases of the Doctor
                     patients.push(i);
+                    flag =  false;
+                }
+                if ( flag ) {
+                    Alert.alert('There is NO Interested Patient');
+                    this.props.navigation.goBack();
                 }
             });
         } else {

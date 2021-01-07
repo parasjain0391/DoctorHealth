@@ -108,7 +108,7 @@ export default class CallLog extends React.Component<Props, State> {
     //   database()
     //   .ref('/users/' + String(this.uid))
     //   .set(this.state.calls);
-    //  //.then(() => console.log('Data set.'));
+    //   .then(() => console.log('Data set.'));
     //  //The console print is removed due to extra screen space in node
     //}
   }

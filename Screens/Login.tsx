@@ -114,10 +114,15 @@ export default class Login extends React.Component<Props,States> {
                     if (error.code === 'auth/wrong-password') {
                         console.log('Password is incorrect!!!');
                         Alert.alert('Password is incorrect!!!');
-                    }
-                    if (error.code === 'auth/invalid-email') {
+                    } else if (error.code === 'auth/invalid-email') {
                         console.log('Email is incorrect!!!');
                         Alert.alert('Email is incorrect!!!');
+                    } else if (error.code === 'auth/user-not-found'){
+                        console.log('Email is incorrect!!!');
+                        Alert.alert('Email is incorrect!!!');
+                    } else {
+                        console.log(String(error));
+                        Alert.alert(String(error.code));
                     }
                 });
             }
