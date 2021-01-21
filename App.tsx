@@ -4,13 +4,17 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationContainer} from '@react-navigation/native';
 //import {View} from 'react-native';
 import Login from './Screens/Login';
+import LoginTrial from './Screens/LoginTrial';
+import Loading from './Screens/Loading';
 import Homescreen from './Screens/Homescreen';
 import StatusUpdate from './Screens/StatusUpdate';
 import NAList from './Screens/NAList';
 import NATodayList from './Screens/NATodayList';
 import PriceIssueList from './Screens/PriceIssueList';
-import ReportAwaitedList from './Screens/ReportAwaitedList';
+//import ReportAwaitedList from './Screens/ReportAwaitedList';
 import InterestedList from './Screens/InterestedList';
+import CampaignList from './Screens/CampaignList';
+import SelectCampaign from './Screens/SelectCampaign';
 
 const Stack = createStackNavigator();
 interface Props {}
@@ -20,7 +24,17 @@ export default class App extends React.Component<Props, States> {
     return (
       // stack navigator for login screen and others
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login">
+        <Stack.Navigator initialRouteName="Loading">
+          <Stack.Screen
+            name="Loading"
+            component={Loading}
+            options={{title: 'Dr. Health'}}
+          />
+          <Stack.Screen
+            name="LoginTrial"
+            component={LoginTrial}
+            options={{title: 'Login'}}
+          />
           <Stack.Screen
             name="Login"
             component={Login}
@@ -56,10 +70,20 @@ export default class App extends React.Component<Props, States> {
             component={InterestedList}
             options={{title: 'Interested List'}}
           />
-          <Stack.Screen
+          {/* <Stack.Screen
             name="Report Awaited List"
             component={ReportAwaitedList}
             options={{title: 'Report Awaited List'}}
+          /> */}
+          <Stack.Screen
+            name="Select Campaign List"
+            component={SelectCampaign}
+            options={{title: 'Select Campaign List'}}
+          />
+          <Stack.Screen
+            name="Campaign List"
+            component={CampaignList}
+            options={{title: 'Campaign List'}}
           />
         </Stack.Navigator>
       </NavigationContainer>

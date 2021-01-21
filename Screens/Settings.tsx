@@ -41,6 +41,9 @@ export default class Setting extends React.Component<Props,States> {
     viewReportAwaited(navigation: any) {
         navigation.navigate('Report Awaited List',{uid:this.uid});
     }
+    viewCampaignList(navigation: any) {
+        navigation.navigate('Select Campaign List',{uid:this.uid});
+    }
     viewPriceIssue(navigation: any) {
         if (this.role !== 'Price Negotiator'){
             Alert.alert('Only Price Negotiator can access Price Issue Patient');
@@ -116,7 +119,7 @@ export default class Setting extends React.Component<Props,States> {
         console.log('Logout');
         navigation.reset({
             index: 0,
-            routes: [{ name: 'Login' }],
+            routes: [{ name: 'LoginTrial' }],
         });
         await AsyncStorage.removeItem('email');
         await AsyncStorage.removeItem('role');
@@ -129,9 +132,9 @@ export default class Setting extends React.Component<Props,States> {
             <View style={styles.container}>
                 <FAB
                 style={styles.fab}
-                label="Report Awaited List"
+                label="Campaigns List"
                 icon="clipboard-text"
-                onPress={()=>{this.viewReportAwaited(this.props.navigation);}}
+                onPress={()=>{this.viewCampaignList(this.props.navigation);}}
                 />
                 <FAB
                 style={styles.fab}

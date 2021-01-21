@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import React from 'react';
-import {Alert, StyleSheet, View, Platform, PermissionsAndroid } from 'react-native';
+import {Alert, StyleSheet, View, Platform, PermissionsAndroid, ScrollView } from 'react-native';
 import { NavigationParams, SafeAreaView } from 'react-navigation';
 // @ts-ignore
 import RadioButtonRN from 'radio-buttons-react-native';
@@ -106,7 +106,12 @@ export default class StatusUpdate extends React.Component<Props, States> {
                                     'Calls Made':0,
                                     'Finally Confirmed':0,
                                     'Order Declined':0,
-                                    'Assigned Rejected':0};
+                                    'Assigned Rejected':0,
+                                    'Repeat':0,
+                                    'Existing Patients':0,
+                                    'Appointments':0,
+                                    'Call Back':0,
+                                };
                 database()
                 .ref('/doctorPerformance/' + String(rec.doctoruid) + '/' + String(moment().format('YYYY-MM-DD')))
                 .set(freshPerformance)
@@ -161,7 +166,7 @@ export default class StatusUpdate extends React.Component<Props, States> {
     // updates the status of the patient in the database
     async updateStatus(patient:any) {
         if (this.newStatus === 'Pending'){
-            Alert.alert('Please select an appropriate status of the patient');
+            Alert.alert('Please select an different(new) status of the patient');
         } else {
             //Previosu Status is stored for decrement in count
             this.previousStatus = String(patient.status);
@@ -225,7 +230,7 @@ export default class StatusUpdate extends React.Component<Props, States> {
                 },
                 );
                 if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                CallLogs.load(50).then((calls: any) => this._isMounted && this.setState({calls}));
+                CallLogs.load(10).then((calls: any) => this._isMounted && this.setState({calls}));
                 } else {
                 Alert.alert('Call Log permission denied');
                 }
@@ -258,12 +263,24 @@ export default class StatusUpdate extends React.Component<Props, States> {
                 label:'Not Interested',
             },
             {
+                label:'Repeat',
+            },
+            {
+                label:'Existing Patients',
+            },
+            {
+                label:'Appointments',
+            },
+            {
+                label:'Call Back',
+            },
+            {
                 label:'Not Answered 2',
             },
-
       ];
       return (
         <SafeAreaView>
+        <ScrollView>
         <View>
             <View>
                 <RadioButtonRN
@@ -292,6 +309,7 @@ export default class StatusUpdate extends React.Component<Props, States> {
             />
             </View>
         </View>
+        </ScrollView>
         </SafeAreaView>
       );
     }
